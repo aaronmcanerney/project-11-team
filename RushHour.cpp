@@ -24,16 +24,29 @@ struct Vehicle{
 };
 
 struct Board{
-    int state[6][6];
 
-    inline int getState(int i, int j) const {
-        return state[i][j];
+    Board(){
+        stateCount = allStateCount;
+        allStateCount++;
+    }
+
+    inline bool getStateCount() const{
+        return stateCount;
     }
 
     inline bool operator<(const Board& rhs) const{
-        return this->getState(0,0) <= rhs.getState(0,0);
+        return this->getStateCount() < rhs.getStateCount();
     }
+
+    int state[6][6];
+
+    //for comparison in queue and set
+    static int allStateCount;
+
+    int stateCount;
 };
+
+int Board::allStateCount = 0;
 
 //consts for array size, car and truck size, and horizontal check
 const int CAR = 2;
