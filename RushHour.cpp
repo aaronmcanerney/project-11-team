@@ -13,6 +13,7 @@ and does everything else with pass by reference methods.
 #include<map>
 #include<set>
 #include<queue>
+#include<fstream>
 
 using namespace std;
 
@@ -59,8 +60,8 @@ void setBoard(int board[][MAX_ARR], const Vehicle& v, const int car);
 bool isCar(const Vehicle& v);
 void print(const int board[][MAX_ARR]);
 void fillArray(int board[][MAX_ARR]);
-bool moveForward(Vehicle& v, int board[][MAX_ARR]);
-bool moveBackward(Vehicle& v, int board[][MAX_ARR]);
+bool moveForward(Vehicle& v, Board& board);
+bool moveBackward(Vehicle& v, Board& board);
 bool isComplete(const Vehicle& v, const int board[][MAX_ARR]);
 bool isHorizontal(const Vehicle& v);
 void solve(int& numMoves, Vehicle cars[], Board& board, int& best,const int& numCars, bool& result);
@@ -88,7 +89,7 @@ int main(){
     fillArray(board.state);
     //read in the board from stdin
     read(board.state, numCars, cars);
-
+    print(board.state);
     //set up game variables
     int moves = 0;
     int best = 11;
@@ -126,10 +127,13 @@ int main(){
 **/
 
 void read(int board[][MAX_ARR], int& numCars, Vehicle cars[]){
-    cin >> numCars;
+    //cin >> numCars;
+    ifstream inFile;
+    inFile.open("C:/cygwin64/home/aaron_000/CS302/project-11-team/readin.txt");
+    inFile >> numCars;
     for(int i = 0; i < numCars; i++){
         Vehicle v;
-        cin >> v.length >> v.orientation >> v.row >> v.column;
+        inFile >> v.length >> v.orientation >> v.row >> v.column;
         cars[i] = v;
         setBoard(board, v, i+1);
     }
@@ -335,17 +339,17 @@ bool isCollisionBackward(const Vehicle& v, const int board[][MAX_ARR]){
 *@post a boolean value indicating if the car was moved. A car in a new position on the board.
 *
 **/
-bool moveForward(Vehicle& v, int board[][MAX_ARR]){
+bool moveForward(Vehicle& v, Board& board){
     
-    int set = board[v.row][v.column];
+    int set = board.state[v.row][v.column];
     if(isHorizontal(v)){
         if(isCar(v)){
             if(v.column + CAR < MAX_ARR){
-                if(!isCollisionForward(v, board)){
-                    board[v.row][v.column] = 0;
+                if(!isCollisionForward(v, board.state)){
+                    board.state[v.row][v.column] = 0;
                     v.column++;
                     for(int i = 0; i < CAR; i++){
-                        board[v.row][v.column + i] = set;
+                        board.state[v.row][v.column + i] = set;
                     }
                     return true;
                 }
@@ -353,11 +357,11 @@ bool moveForward(Vehicle& v, int board[][MAX_ARR]){
         }
         else{
             if(v.column + TRUCK < MAX_ARR){
-                if(!isCollisionForward(v, board)){
-                    board[v.row][v.column] = 0;
+                if(!isCollisionForward(v, board.state)){
+                    board.state[v.row][v.column] = 0;
                     v.column++;
                     for(int i = 0; i < TRUCK; i++){
-                        board[v.row][v.column + i] = set;
+                        board.state[v.row][v.column + i] = set;
                     }
                     return true;
                 }
@@ -367,11 +371,11 @@ bool moveForward(Vehicle& v, int board[][MAX_ARR]){
     else{
         if(isCar(v)){
             if(v.row + CAR < MAX_ARR){
-                if(!isCollisionForward(v, board)){
-                    board[v.row][v.column] = 0;
+                if(!isCollisionForward(v, board.state)){
+                    board.state[v.row][v.column] = 0;
                     v.row++;
                     for(int i = 0; i < CAR; i++){
-                        board[v.row + i][v.column] = set;
+                        board.state[v.row + i][v.column] = set;
                     }
                     return true;
                 }
@@ -379,11 +383,11 @@ bool moveForward(Vehicle& v, int board[][MAX_ARR]){
         }
         else{
             if(v.row + TRUCK < MAX_ARR){
-                if(!isCollisionForward(v, board)){
-                    board[v.row][v.column] = 0;
+                if(!isCollisionForward(v, board.state)){
+                    board.state[v.row][v.column] = 0;
                     v.row++;
                     for(int i = 0; i < TRUCK; i++){
-                        board[v.row + i][v.column] = set;
+                        board.state[v.row + i][v.column] = set;
                     }
                     return true;
                 }
@@ -409,17 +413,17 @@ bool moveForward(Vehicle& v, int board[][MAX_ARR]){
 *@post a boolean value indicating if the car was moved. A car in a new position on the board.
 *
 **/
-bool moveBackward(Vehicle& v, int board[][MAX_ARR]){
-    int set = board[v.row][v.column];
+bool moveBackward(Vehicle& v, Board& board){
+    int set = board.state[v.row][v.column];
         //cout << "attempt to move " << set << " backward: "<<endl;
         if(isHorizontal(v)){
             if(isCar(v)){
                 if(v.column - 1 >= 0){
-                    if(!isCollisionBackward(v, board)){
-                        board[v.row][v.column + 1] = 0;
+                    if(!isCollisionBackward(v, board.state)){
+                        board.state[v.row][v.column + 1] = 0;
                         v.column--;
                         for(int i = 0; i < CAR; i++){
-                            board[v.row][v.column + i] = set;
+                            board.state[v.row][v.column + i] = set;
                         }
                         return true;
                     }
@@ -427,11 +431,11 @@ bool moveBackward(Vehicle& v, int board[][MAX_ARR]){
             }
             else{
                 if(v.column - 1 >= 0){
-                    if(!isCollisionBackward(v, board)){
-                        board[v.row][v.column + 2] = 0;
+                    if(!isCollisionBackward(v, board.state)){
+                        board.state[v.row][v.column + 2] = 0;
                         v.column--;
                         for(int i = 0; i < TRUCK; i++){
-                            board[v.row][v.column + i] = set;
+                            board.state[v.row][v.column + i] = set;
                         }
                         return true;
                     }
@@ -441,11 +445,11 @@ bool moveBackward(Vehicle& v, int board[][MAX_ARR]){
         else{
             if(isCar(v)){
                 if(v.row - 1 >= 0){
-                    if(!isCollisionBackward(v, board)){
-                        board[v.row + 1][v.column] = 0;
+                    if(!isCollisionBackward(v, board.state)){
+                        board.state[v.row + 1][v.column] = 0;
                         v.row--;
                         for(int i = 0; i < CAR; i++){
-                            board[v.row + i][v.column] = set;
+                            board.state[v.row + i][v.column] = set;
                         }
                         return true;
                     }
@@ -453,11 +457,11 @@ bool moveBackward(Vehicle& v, int board[][MAX_ARR]){
             }
             else{
                 if(v.row - 1 >= 0){
-                    if(!isCollisionBackward(v, board)){
-                        board[v.row + 2][v.column] = 0;
+                    if(!isCollisionBackward(v, board.state)){
+                        board.state[v.row + 2][v.column] = 0;
                         v.row--;
                         for(int i = 0; i < TRUCK; i++){
-                            board[v.row + i][v.column] = set;
+                            board.state[v.row + i][v.column] = set;
                         }
                         return true;
                     }
@@ -544,9 +548,13 @@ void solve(int& numMoves, Vehicle cars[], Board& board, int& best, const int& nu
     map[board] = numMoves;
     set.insert(board);
 
+    cout << set.size() << endl;
     while(!queue.empty()){
+        cout << "popping board"<<endl;
         Board parentState = queue.front();
         queue.pop();
+        cout << "parent state" << endl;
+        print(parentState.state);
         //check if is complete
         if(isComplete(cars[0], parentState.state) || numMoves > best){
             if(map[parentState] < best){
@@ -561,19 +569,29 @@ void solve(int& numMoves, Vehicle cars[], Board& board, int& best, const int& nu
         //move every piece and snapshot the board
         //if a piece was moved that is considered a new state
         for(int i = 0; i < numCars; i++){
-            if(moveForward(cars[i], board.state)){
-                if(set.find(board) == set.end()){
+            if(moveForward(cars[i], board)){
+                cout << "moving forward"<<endl;
+                cout << "did we find the board?" << set.count(board) << endl;
+                print(board.state);
+                if(!set.count(board)){
+                    cout << "New board " << endl;
+                    print(board.state);
                     map[board] = map[parentState] + 1;
                     queue.push(board);
                     set.insert(board);
                 }
+                moveBackward(cars[i], board);
             }
-            if(moveBackward(cars[i], board.state)){
-                if(set.find(board) == set.end()){
+            if(moveBackward(cars[i], board)){
+                cout << "moving backward " << endl;
+                if(!set.count(board)){
+                    cout << "new board" << endl;
+                    print(board.state);
                     map[board] = map[parentState] + 1;
                     queue.push(board);
                     set.insert(board);
                 }
+                moveForward(cars[i], board);
             }
 
         }
