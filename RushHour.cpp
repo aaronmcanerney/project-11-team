@@ -1,5 +1,5 @@
 /** @file rushhour.cpp
- @author Aaron Mcanerney
+ @author Aaron Mcanerney, Justin Gill, D
 @version Revision 1.0
 @breif solves the rush hour game using DFS
 @details Uses DFS to solve the rush hour puzzle game. uses a struct to hold vehicles
@@ -178,12 +178,10 @@ int main(){
 **/
 
 void read(int board[][MAX_ARR], int& numCars, Vehicle cars[]){
-    ifstream inFile;
-    inFile.open("rush.txt");
-    inFile >> numCars;
+    cin >> numCars;
     for(int i = 0; i < numCars; i++){
         Vehicle v;
-        inFile >> v.length >> v.orientation >> v.row >> v.column;
+        cin >> v.length >> v.orientation >> v.row >> v.column;
         cars[i] = v;
         setBoard(board, v, i+1);
     }
