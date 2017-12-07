@@ -10,8 +10,7 @@ and does everything else with pass by reference methods.
 
 #include<iostream>
 #include <unistd.h>
-#include <chrono>
-#include <thread>
+
 #include<map>
 #include<set>
 #include<queue>
@@ -29,18 +28,32 @@ struct Vehicle{
 
 struct Board{
 
-    Board(){
+    Board(int numCars){
+        //cout << "in ctor"<<endl;
+        cars = new Vehicle[numCars];
         numMoves = 0;
+        fillBoard();
         generateID();
+    }
+
+    ~Board(){
+        delete [] cars;
+    }
+    Vehicle* cars;
+    void fillBoard(){
+        for(int i = 0; i < 36; i++){
+            state[i / 6][i % 6] = 0;
+        }
     }
 
     Board& operator=(const Board& other){
         if(this != &other){
+            id = "";
             int numMoves = other.numMoves;
+            cars = new Vehicle[18]; 
             for(int i = 0; i < 36; i++){
-                state[i % 6][i / 6] = other.state[i % 6][i / 6];
+                state[i / 6][i % 6] = other.state[i / 6][i % 6];
             }
-            cout << "JACOB" << endl;
             generateID();
         }
         return *this;
@@ -48,29 +61,37 @@ struct Board{
 
     void stringToBoard(const string s){
         for(int i =0; i< 36; i++){
-            id[i] = state[i % 6][i / 6];
+            id[i] = state[i / 6][i % 6];
         }
     }
 
     Board(const Board& other){
-        int numMoves = other.numMoves;
+        id ="";
+        cars = new Vehicle[18];
+        numMoves = other.numMoves;
+        for(int i =0; i< 18; i++){
+            cars[i] = other.cars[i];
+        }
+        fillBoard();
         for(int i = 0; i < 36; i++){
-            state[i % 6][i / 6] = other.state[i % 6][i / 6];
+            state[i / 6][i % 6] = other.state[i / 6][i % 6];
         }
         generateID();
-    }    
+    } 
+
     int state[6][6];
 
     string id;
     int numMoves;
+    int numCars;
     
+    void incMoves(){
+        numMoves++;
+    }
     void generateID(){
-        cout << "ID: ";
         for(int i = 0; i < 36; i++){
-            cout  << (char) state[i % 6][i / 6];
-            id.push_back((char) state[i % 6][i / 6]);
+            id.push_back(state[i / 6][i % 6] + '0');
         }
-        cout << endl;
     }
 
     string getID(){
@@ -90,7 +111,7 @@ const int TRUCK = 3;
 const char HORIZONTAL = 'H';
 const int MAX_VEHICLE = 18;
 const int MAX_ARR = 6;
-void read(int board[][MAX_ARR], int& numCars, Vehicle cars[]);
+void read(int board[][MAX_ARR], int& numCars, Vehicle* cars);
 void setBoard(int board[][MAX_ARR], const Vehicle& v, const int car);
 bool isCar(const Vehicle& v);
 void print(const int board[][MAX_ARR]);
@@ -99,7 +120,7 @@ bool moveForward(Vehicle& v, Board& board);
 bool moveBackward(Vehicle& v, Board& board);
 bool isComplete(const Vehicle& v, const int board[][MAX_ARR]);
 bool isHorizontal(const Vehicle& v);
-void solve(int& numMoves, Vehicle cars[], Board& board, int& best,const int& numCars, bool& result);
+void solve(int& numMoves, Vehicle* cars, Board& board, int& best,const int& numCars, bool& result);
 bool isCollisionForward(const Vehicle& v, const int board[][MAX_ARR]);
 bool isCollisionBackward(const Vehicle& v, const int board[][MAX_ARR]);
 
@@ -116,22 +137,22 @@ bool isCollisionBackward(const Vehicle& v, const int board[][MAX_ARR]);
 **/
 int main(){
     //declare variables needed for board and cars/trucks
-    Board board;
-    Vehicle cars[MAX_VEHICLE];
+    Board board(MAX_VEHICLE);
+    //cout << "out of ctor"<<endl;
     int numCars;
 
     //fill the array board with ambiguous numbers to start (flag of 0 indicating no car or truck)
     fillArray(board.state);
     //read in the board from stdin
-    read(board.state, numCars, cars);
-    print(board.state);
+    read(board.state, numCars, board.cars);
+    //print(board.state);
     //set up game variables
     int moves = 0;
     int best = 11;
     bool result = false;
-
+    //cout << "ready to solve"<<endl;
     //solve with BFS
-    solve(moves, cars,board,best, numCars, result);
+    solve(moves, board.cars,board,best, numCars, result);
 
     //print out whether or not we found a solution
     if(result){
@@ -573,34 +594,34 @@ bool isComplete(const Vehicle& v, const int board[][MAX_ARR]){
 **/
 
 void solve(int& numMoves, Vehicle cars[], Board& board, int& best, const int& numCars, bool& result){
-
+    //cout << "bang"<<endl;
     queue<Board> queue;     //queue containing boards
-    set<string> set;
     map<string, int> map;    //maps an indicated state to the number of moves it takes to reach said state
     int iter = 1;
-    set.insert(board.getID());
+    //cout << "fuck?"<<endl;
     queue.push(board);
+    //cout << "past queue"<<endl;
     map[board.getID()] = numMoves;
 
-    Board temp;
-
+    //cout << "made it past board.getid"<<endl;
     while(!queue.empty()){
         //print key values
-        cout << " fuck"<<endl;
+       // cout << " fuck"<<endl;
         
-        cout << "me"<<endl;
+//cout << "me"<<endl;
         //for (map<string,int>::iterator it=map.begin(); it != map.end(); ++it) {
         //    cout << it->first() << endl;
         //}  
         Board parentState(queue.front());
         queue.pop();
-        cout << "CURRENT BOARD"<<endl;
-        print(parentState.state);
+        //cout << "CURRENT BOARD"<<endl;
+        //print(parentState.state);
         
         //check if is complete
-        if(isComplete(cars[0], parentState.state) || numMoves > best){
+        if(isComplete(parentState.cars[0], parentState.state) || numMoves > best){
             if(map[parentState.getID()] < best){
-                best = map[parentState.getID()];
+                best = parentState.numMoves;
+               // cout << "fucking map at stuff" << map[parentState.getID()] << endl;
                 result = true;
                 return;
             }
@@ -608,34 +629,42 @@ void solve(int& numMoves, Vehicle cars[], Board& board, int& best, const int& nu
                 return;
             }
         }   
-
-        cout << "ITERATION: " << iter << endl;
-
-        //move every piece and snapshot the board
+        //cout << "ITERATION: " << iter << endl;
         //if a piece was moved that is considered a new state
         for(int i = 0; i < numCars; i++){
-            //cout <<"column " << cars[i].column << endl;
-            if(moveForward(cars[i], parentState)){
-                temp = parentState;
-                if(set.find(temp.getID()) == set.end()){
-                    set.insert(temp.getID());
-                    cout << "new state - after moving forward"<<endl;
-                    print(temp.state);
-                    map[temp.getID()] = map[parentState.getID()] + 1;
-                    queue.push(temp);
+            //move every piece and snapshot the board
+            Board forwards(parentState);
+            Board backwards(parentState);
+           // cout <<"column " << parentState.cars[i].column << endl;
+            if(moveForward(forwards.cars[i], forwards)){
+                //cout << "car @ i id : " << forwards.getID() << endl;
+                forwards.generateID();
+                //cout << "FUCKING BOARD AFTER MOVING "<<endl; 
+               // print(forwards.state);
+               // cout << "ID : " << forwards.getID() << endl;
+                if(map.find(forwards.getID()) == map.end()){
+                
+                 //   cout << "new state - after moving forward"<<endl;
+                //cout << "ith car not in map " << i << endl;
+                   // print(forwards.state);
+                    forwards.incMoves();
+                    map[forwards.getID()] = map[parentState.getID()] + 1;
+                   // cout << "MAP AT FORWARDS " << map[forwards.getID()] << endl;
+                    queue.push(forwards);
                 }
-                moveBackward(cars[i], parentState);
+                //moveBackward(parentState.cars[i], parentState);
             }
-            if(moveBackward(cars[i], parentState)){
-                temp = parentState;
-                if(set.find(temp.getID()) == set.end()){
-                    set.insert(temp.getID());
-                    cout << "new state - after moving backwards"<<endl;
-                    print(temp.state);
-                    map[temp.getID()] = map[parentState.getID()] + 1;
-                    queue.push(temp);
+            if(moveBackward(backwards.cars[i], backwards)){
+               // cout << "ID : " << backwards.getID() << endl;
+               backwards.generateID();
+                if(map.find(backwards.getID()) == map.end()){
+                //    cout << "new state - after moving backwards"<<endl;
+                    backwards.incMoves();
+                   // print(backwards.state);
+                    map[backwards.getID()] = map[parentState.getID()] + 1;
+                    queue.push(backwards);
                 }
-                moveForward(cars[i], parentState);
+                //moveForward(parentState.cars[i], parentState);
             }
         }
         iter++;
