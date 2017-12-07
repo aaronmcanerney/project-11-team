@@ -1,11 +1,11 @@
-CPPFLAGS = 
 
-all: rushhour
 
-rushhour: rushhour.o 
-	g++ $(CPPFLAGS) -o rushhour rushhour.o 
+all: RushHour
+
+RushHour: RushHour.o 
+	g++ -o RushHour RushHour.o 
 
 clean:
-	rm -f rushhour; rm -f rushhour.o
+	rm -f RushHour; rm -f RushHour.o
 	
-rushhour.o: rushhour.cpp 
+RushHour.o: RushHour.cpp 
