@@ -4,7 +4,7 @@
 @breif solves the rush hour game using BFS
 @details Uses BFS to solve the rush hour puzzle game. Uses structs,maps, and queues to
 output a solution to rushour in an efficient time.
-@date 10/3/2017
+@date 12/6/2017
 **/
 
 
