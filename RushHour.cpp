@@ -2,7 +2,7 @@
  @author Aaron Mcanerney, Justin Gill, Dylan Simard
 @version Revision 1.0
 @breif solves the rush hour game using BFS
-@details Uses BFS to solve the rush hour puzzle game. Uses structs,maps, and queues to 
+@details Uses BFS to solve the rush hour puzzle game. Uses structs,maps, and queues to
 output a solution to rushour in an efficient time.
 @date 10/3/2017
 **/
@@ -135,26 +135,29 @@ bool isCollisionBackward(const Vehicle& v, const int board[][MAX_ARR]);
 int main(){
     //declare variables needed for board and cars/trucks
     Board board(MAX_VEHICLE);
-    int numCars;
+    int numCars = -1;
+    int counter = 1;
+    while(numCars!=0)
+    {
+        //fill the array board with ambiguous numbers to start (flag of 0 indicating no car or truck)
+        fillArray(board.state);
+        //read in the board from stdin
+        cin >> numCars;
+        read(board.state, numCars, board.cars);
+        //set up game variables
+        int moves = 0;
+        int best = 11;
+        bool result = false;
+        //solve with BFS
+        solve(moves, board.cars,board,best, numCars, result);
 
-    //fill the array board with ambiguous numbers to start (flag of 0 indicating no car or truck)
-    fillArray(board.state);
-    //read in the board from stdin
-    read(board.state, numCars, board.cars);
-    //set up game variables
-    int moves = 0;
-    int best = 11;
-    bool result = false;
-    //solve with BFS
-    solve(moves, board.cars,board,best, numCars, result);
+        //print out whether or not we found a solution
+        if(result){
+            cout << "Scenario " << counter << " requires " << best << " moves"<<endl;
+        }
+        counter++;
+    }
 
-    //print out whether or not we found a solution
-    if(result){
-        cout << "Scenario 1" << " requires " << best << " moves"<<endl;
-    }
-    else{
-        cout << "Cant be solved "<< endl;
-    }
     return 1;
 }
 
@@ -177,7 +180,6 @@ int main(){
 **/
 
 void read(int board[][MAX_ARR], int& numCars, Vehicle cars[]){
-    cin >> numCars;
     for(int i = 0; i < numCars; i++){
         Vehicle v;
         cin >> v.length >> v.orientation >> v.row >> v.column;
