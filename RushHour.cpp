@@ -1,15 +1,14 @@
 /** @file rushhour.cpp
  @author Aaron Mcanerney, Justin Gill, Dylan Simard
 @version Revision 1.0
-@breif solves the rush hour game using DFS
-@details Uses DFS to solve the rush hour puzzle game. uses a struct to hold vehicles
-and does everything else with pass by reference methods.
+@breif solves the rush hour game using BFS
+@details Uses BFS to solve the rush hour puzzle game. Uses structs,maps, and queues to 
+output a solution to rushour in an efficient time.
 @date 10/3/2017
 **/
 
 
 #include<iostream>
-
 #include<map>
 #include<set>
 #include<queue>
