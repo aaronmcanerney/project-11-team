@@ -34,6 +34,24 @@ struct Board{
         generateID();
     }
 
+    Board& operator=(const Board& other){
+        if(this != &other){
+            int numMoves = other.numMoves;
+            for(int i = 0; i < 36; i++){
+                state[i % 6][i / 6] = other.state[i % 6][i / 6];
+            }
+            cout << "JACOB" << endl;
+            generateID();
+        }
+        return *this;
+    }
+
+    void stringToBoard(const string s){
+        for(int i =0; i< 36; i++){
+            id[i] = state[i % 6][i / 6];
+        }
+    }
+
     Board(const Board& other){
         int numMoves = other.numMoves;
         for(int i = 0; i < 36; i++){
@@ -47,15 +65,22 @@ struct Board{
     int numMoves;
     
     void generateID(){
+        cout << "ID: ";
         for(int i = 0; i < 36; i++){
+            cout  << (char) state[i % 6][i / 6];
             id.push_back((char) state[i % 6][i / 6]);
         }
+        cout << endl;
     }
 
     string getID(){
         return id;
     }
-
+    void printID(){
+        for(int i = 0; i < 36; i++){
+            cout << id[i];
+        }
+    }
 };
 
 
@@ -350,7 +375,6 @@ bool isCollisionBackward(const Vehicle& v, const int board[][MAX_ARR]){
 *
 **/
 bool moveForward(Vehicle& v, Board& board){
-    
     int set = board.state[v.row][v.column];
     if(isHorizontal(v)){
         if(isCar(v)){
@@ -551,17 +575,27 @@ bool isComplete(const Vehicle& v, const int board[][MAX_ARR]){
 void solve(int& numMoves, Vehicle cars[], Board& board, int& best, const int& numCars, bool& result){
 
     queue<Board> queue;     //queue containing boards
+    set<string> set;
     map<string, int> map;    //maps an indicated state to the number of moves it takes to reach said state
     int iter = 1;
+    set.insert(board.getID());
     queue.push(board);
     map[board.getID()] = numMoves;
 
-    while(!queue.empty()){
+    Board temp;
 
+    while(!queue.empty()){
+        //print key values
+        cout << " fuck"<<endl;
+        
+        cout << "me"<<endl;
+        //for (map<string,int>::iterator it=map.begin(); it != map.end(); ++it) {
+        //    cout << it->first() << endl;
+        //}  
         Board parentState(queue.front());
         queue.pop();
-       // cout << "CURRENT BOARD"<<endl;
-       // print(parentState.state);
+        cout << "CURRENT BOARD"<<endl;
+        print(parentState.state);
         
         //check if is complete
         if(isComplete(cars[0], parentState.state) || numMoves > best){
@@ -580,9 +614,11 @@ void solve(int& numMoves, Vehicle cars[], Board& board, int& best, const int& nu
         //move every piece and snapshot the board
         //if a piece was moved that is considered a new state
         for(int i = 0; i < numCars; i++){
+            //cout <<"column " << cars[i].column << endl;
             if(moveForward(cars[i], parentState)){
-                Board temp(parentState);
-                if(map.find(temp.getID()) == map.end()){
+                temp = parentState;
+                if(set.find(temp.getID()) == set.end()){
+                    set.insert(temp.getID());
                     cout << "new state - after moving forward"<<endl;
                     print(temp.state);
                     map[temp.getID()] = map[parentState.getID()] + 1;
@@ -591,12 +627,13 @@ void solve(int& numMoves, Vehicle cars[], Board& board, int& best, const int& nu
                 moveBackward(cars[i], parentState);
             }
             if(moveBackward(cars[i], parentState)){
-                Board temp(parentState);
-                if(map.find(temp.getID()) == map.end()){
+                temp = parentState;
+                if(set.find(temp.getID()) == set.end()){
+                    set.insert(temp.getID());
                     cout << "new state - after moving backwards"<<endl;
                     print(temp.state);
                     map[temp.getID()] = map[parentState.getID()] + 1;
-                    queue.push(board);
+                    queue.push(temp);
                 }
                 moveForward(cars[i], parentState);
             }
